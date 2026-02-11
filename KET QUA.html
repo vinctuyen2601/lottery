@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Kết Quả Quay Số</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Saira:ital,wght@0,100..900;1,100..900&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      :root {
+        --gold: #ffd700;
+        --gold-dark: #c5a000;
+        --red-primary: #d50000;
+        --red-dark: #820000;
+        --glass-bg: rgba(255, 255, 255, 0.08);
+        --glass-border: rgba(255, 255, 255, 0.2);
+      }
+
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+
+      body {
+        font-family: "Saira", "Open Sans", sans-serif;
+        background: #1a0000;
+        color: #fff;
+        min-height: 100vh;
+        overflow-x: hidden;
+      }
+
+      .background {
+        position: fixed; top: 0; left: 0;
+        width: 100vw; height: 100vh;
+        object-fit: cover; z-index: 0;
+        filter: brightness(0.35);
+      }
+
+      .fireworks-canvas {
+        position: fixed; top: 0; left: 0;
+        width: 100vw; height: 100vh;
+        z-index: 0; pointer-events: none;
+      }
+
+      /* === LAYOUT === */
+      .page {
+        position: relative; z-index: 1;
+        width: 100%; max-width: 1400px;
+        margin: 0 auto;
+        padding: 20px 24px 80px;
+      }
+
+      /* === HEADER === */
+      .header {
+        text-align: center;
+        padding: 16px 0 20px;
+      }
+
+      .header h1 {
+        font-size: clamp(28px, 4.5vw, 56px);
+        font-weight: 900;
+        color: var(--gold);
+        text-shadow: 0 0 15px rgba(255, 215, 0, 0.6), 2px 2px 4px rgba(0,0,0,0.8);
+        letter-spacing: 4px;
+      }
+
+      .header h2 {
+        font-size: clamp(15px, 2.5vw, 26px);
+        font-weight: 700;
+        color: #fff;
+        text-shadow: 0 0 12px rgba(255, 82, 82, 0.5), 2px 2px 4px rgba(0,0,0,0.8);
+        margin-top: 4px;
+        letter-spacing: 2px;
+      }
+
+      /* === HIGHLIGHT 2 (Giải đặc biệt) === */
+      .prize-section.hl-2 {
+        text-align: center;
+        padding: 30px 20px;
+        margin-bottom: 20px;
+        background: radial-gradient(ellipse at center, rgba(255,215,0,0.12) 0%, transparent 70%);
+        border: 2px solid rgba(255, 215, 0, 0.35);
+        border-radius: 20px;
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+      }
+
+      .hl-2 .prize-label {
+        font-size: clamp(24px, 4vw, 44px);
+        font-weight: 900;
+        color: var(--gold);
+        text-shadow: 0 0 20px rgba(255, 215, 0, 0.7), 0 0 40px rgba(255, 215, 0, 0.3);
+        text-transform: uppercase;
+        letter-spacing: 4px;
+      }
+
+      .hl-2 .prize-gift-text {
+        font-size: clamp(14px, 2vw, 22px);
+        color: rgba(255,255,255,0.8);
+        margin-top: 6px;
+        font-weight: 600;
+      }
+
+      .hl-2 .numbers-area {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 16px;
+        margin-top: 20px;
+      }
+
+      .hl-2 .num-big {
+        font-size: clamp(36px, 6vw, 72px);
+        font-weight: 900;
+        color: var(--red-primary);
+        background: linear-gradient(145deg, #ffe44d, #ffd700, #ffc107, #ffb300);
+        padding: 14px 30px;
+        border-radius: 16px;
+        border: 3px solid rgba(255,255,255,0.5);
+        box-shadow: 0 0 30px rgba(255, 215, 0, 0.5),
+          0 0 60px rgba(255, 215, 0, 0.2),
+          inset 0 2px 6px rgba(255,255,255,0.5);
+        letter-spacing: 8px;
+        user-select: all;
+        animation: glowPulse 2s ease-in-out infinite alternate;
+      }
+
+      @keyframes glowPulse {
+        from { box-shadow: 0 0 20px rgba(255,215,0,0.4), 0 0 40px rgba(255,215,0,0.15), inset 0 2px 6px rgba(255,255,255,0.5); }
+        to { box-shadow: 0 0 35px rgba(255,215,0,0.7), 0 0 70px rgba(255,215,0,0.3), inset 0 2px 6px rgba(255,255,255,0.5); }
+      }
+
+      .hl-2 .empty-msg {
+        font-size: 20px;
+        color: rgba(255,255,255,0.3);
+        font-style: italic;
+        margin-top: 16px;
+      }
+
+      /* === HIGHLIGHT 1 (Giải nhất) === */
+      .prize-section.hl-1 {
+        text-align: center;
+        padding: 22px 20px;
+        margin-bottom: 16px;
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid rgba(255, 215, 0, 0.25);
+        border-radius: 16px;
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+      }
+
+      .hl-1 .prize-label {
+        font-size: clamp(20px, 3vw, 32px);
+        font-weight: 900;
+        color: var(--gold);
+        text-shadow: 0 0 12px rgba(255, 215, 0, 0.5);
+        letter-spacing: 2px;
+      }
+
+      .hl-1 .prize-gift-text {
+        font-size: clamp(13px, 1.8vw, 18px);
+        color: rgba(255,255,255,0.7);
+        margin-top: 4px;
+        font-weight: 600;
+      }
+
+      .hl-1 .numbers-area {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 14px;
+      }
+
+      .hl-1 .num-mid {
+        font-size: clamp(24px, 4vw, 44px);
+        font-weight: 900;
+        color: var(--red-primary);
+        background: linear-gradient(145deg, #ffe44d, #ffd700, #ffc107);
+        padding: 10px 22px;
+        border-radius: 12px;
+        border: 2px solid rgba(255,255,255,0.4);
+        box-shadow: 0 0 18px rgba(255, 215, 0, 0.4),
+          inset 0 2px 4px rgba(255,255,255,0.4);
+        letter-spacing: 5px;
+        user-select: all;
+      }
+
+      .hl-1 .empty-msg {
+        font-size: 16px;
+        color: rgba(255,255,255,0.3);
+        font-style: italic;
+        margin-top: 10px;
+      }
+
+      /* === NORMAL PRIZES (highlight 0) === */
+      .prize-section.hl-0 {
+        padding: 16px 20px;
+        margin-bottom: 10px;
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255,255,255,0.1);
+        border-radius: 12px;
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+      }
+
+      .hl-0 .prize-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-bottom: 10px;
+      }
+
+      .hl-0 .prize-label {
+        font-size: clamp(15px, 2vw, 20px);
+        font-weight: 800;
+        color: var(--gold);
+        text-shadow: 0 0 6px rgba(255, 215, 0, 0.25);
+      }
+
+      .hl-0 .prize-gift-text {
+        font-size: clamp(12px, 1.5vw, 15px);
+        color: rgba(255,255,255,0.55);
+        font-weight: 600;
+      }
+
+      .hl-0 .prize-count {
+        font-size: 12px;
+        color: rgba(255,255,255,0.4);
+        background: rgba(255,255,255,0.06);
+        padding: 2px 10px;
+        border-radius: 10px;
+        font-weight: 600;
+      }
+
+      .hl-0 .numbers-area {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+
+      .hl-0 .num-sm {
+        font-size: clamp(14px, 1.8vw, 18px);
+        font-weight: 800;
+        color: var(--red-primary);
+        background: linear-gradient(145deg, #ffe44d, #ffd700, #ffc107);
+        padding: 6px 12px;
+        border-radius: 6px;
+        border: 1px solid rgba(255,255,255,0.3);
+        box-shadow: 0 0 8px rgba(255, 215, 0, 0.2),
+          inset 0 1px 2px rgba(255,255,255,0.3);
+        letter-spacing: 2px;
+        user-select: all;
+      }
+
+      .hl-0 .empty-msg {
+        font-size: 13px;
+        color: rgba(255,255,255,0.25);
+        font-style: italic;
+      }
+
+      .hl-0.empty {
+        opacity: 0.3;
+      }
+
+      /* === SEPARATOR === */
+      .section-divider {
+        text-align: center;
+        margin: 20px 0 14px;
+        font-size: 13px;
+        font-weight: 700;
+        color: rgba(255, 215, 0, 0.4);
+        letter-spacing: 4px;
+        text-transform: uppercase;
+      }
+
+      .section-divider::before,
+      .section-divider::after {
+        content: "";
+        display: inline-block;
+        width: 40px;
+        height: 1px;
+        background: rgba(255, 215, 0, 0.25);
+        vertical-align: middle;
+        margin: 0 12px;
+      }
+
+      /* === BOTTOM BAR === */
+      .bottom-bar {
+        position: fixed; bottom: 0; left: 0; right: 0;
+        z-index: 10;
+        display: flex; justify-content: center; gap: 10px;
+        padding: 12px 20px;
+        background: rgba(10, 0, 0, 0.9);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border-top: 1px solid rgba(255, 215, 0, 0.15);
+      }
+
+      .bar-btn {
+        padding: 9px 20px;
+        font-size: 14px;
+        font-weight: 700;
+        font-family: inherit;
+        border: 2px solid var(--glass-border);
+        border-radius: 8px;
+        background: var(--glass-bg);
+        color: #fff;
+        cursor: pointer;
+        transition: all 0.2s;
+        white-space: nowrap;
+        text-decoration: none;
+      }
+
+      .bar-btn:hover {
+        background: rgba(255,255,255,0.2);
+        border-color: var(--gold);
+        color: var(--gold);
+      }
+
+      .bar-btn.primary {
+        background: rgba(255, 215, 0, 0.15);
+        border-color: var(--gold);
+        color: var(--gold);
+      }
+
+      .bar-btn.primary:hover {
+        background: rgba(255, 215, 0, 0.3);
+      }
+
+      /* === NO DATA === */
+      .no-data {
+        text-align: center;
+        padding: 80px 20px;
+        color: rgba(255,255,255,0.35);
+        font-size: 20px;
+        line-height: 1.6;
+      }
+
+      /* === RESPONSIVE === */
+      @media (max-width: 768px) {
+        .page { padding: 14px 12px 76px; }
+        .hl-2 .num-big { padding: 10px 18px; letter-spacing: 5px; }
+        .hl-1 .num-mid { padding: 8px 14px; letter-spacing: 3px; }
+        .bar-btn { padding: 8px 14px; font-size: 13px; }
+      }
+
+      /* === PRINT === */
+      @media print {
+        body { background: #fff; color: #000; }
+        .background, .fireworks-canvas, .bottom-bar { display: none !important; }
+        .page { max-width: 100%; padding: 10px 20px 20px; }
+
+        .header h1 { color: #b8860b; text-shadow: none; font-size: 32px; }
+        .header h2 { color: #333; text-shadow: none; font-size: 18px; }
+
+        .prize-section { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
+        .prize-section.hl-2 { border-color: #daa520; background: #fffbe6; }
+        .prize-section.hl-1 { border-color: #daa520; background: #fffef5; }
+        .prize-section.hl-0 { border-color: #ddd; background: #fff; }
+        .hl-0.empty { display: none; }
+
+        .prize-label { color: #b8860b !important; text-shadow: none !important; }
+        .prize-gift-text { color: #555 !important; }
+
+        .hl-2 .num-big, .hl-1 .num-mid, .hl-0 .num-sm {
+          color: #c00; background: #fff8dc; border-color: #daa520;
+          box-shadow: none; animation: none;
+        }
+        .hl-2 .num-big { font-size: 36px; }
+        .hl-1 .num-mid { font-size: 24px; }
+        .hl-0 .num-sm { font-size: 14px; }
+
+        .section-divider { color: #999; }
+        .section-divider::before, .section-divider::after { background: #ccc; }
+
+        .prize-section { break-inside: avoid; page-break-inside: avoid; }
+      }
+    </style>
+  </head>
+
+  <body>
+    <img src="./background/background1.jpg" class="background" alt="background" />
+    <canvas id="fireworks-canvas" class="fireworks-canvas"></canvas>
+
+    <div class="page">
+      <div class="header">
+        <h1 id="org-name">TÊN TỔ CHỨC</h1>
+        <h2 id="program-title">KẾT QUẢ CHƯƠNG TRÌNH QUAY SỐ</h2>
+      </div>
+      <div id="results"></div>
+    </div>
+
+    <div class="bottom-bar">
+      <a class="bar-btn primary" href="./TEST CODE QUAY.html">&#9664; Quay lại</a>
+      <button class="bar-btn" onclick="exportCSV()">&#128190; Xuất CSV</button>
+      <button class="bar-btn" onclick="window.print()">&#128424; In kết quả</button>
+    </div>
+
+    <script>
+      var data = [];
+
+      // Load org name & program title from config
+      (function() {
+        var orgName = localStorage.getItem("configOrgName") || "TÊN TỔ CHỨC";
+        var programTitle = localStorage.getItem("configProgramTitle") || "CHƯƠNG TRÌNH QUAY SỐ";
+        document.getElementById("org-name").innerText = orgName;
+        document.getElementById("program-title").innerText = "KẾT QUẢ " + programTitle;
+        document.title = "Kết Quả - " + orgName;
+      })();
+
+      function pad(n) { return String(n).padStart(5, "0"); }
+
+      function loadData() {
+        try { data = JSON.parse(localStorage.getItem("data")) || []; }
+        catch(e) { data = []; }
+      }
+
+      function render() {
+        var el = document.getElementById("results");
+        el.innerHTML = "";
+
+        if (!data || data.length === 0) {
+          el.innerHTML = '<div class="no-data">Chưa có dữ liệu quay số.<br>Hãy quay số trước rồi xem kết quả.</div>';
+          return;
+        }
+
+        var reversed = data.slice().reverse();
+
+        // Group: hl-2 first, then hl-1, then hl-0
+        var hl2 = reversed.filter(function(d) { return d.highlight === 2; });
+        var hl1 = reversed.filter(function(d) { return d.highlight === 1; });
+        var hl0 = reversed.filter(function(d) { return !d.highlight || d.highlight === 0; });
+
+        // Render hl-2 (giải đặc biệt)
+        hl2.forEach(function(item) {
+          var sec = document.createElement("div");
+          sec.className = "prize-section hl-2";
+
+          var label = document.createElement("div");
+          label.className = "prize-label";
+          label.textContent = item.title;
+          sec.appendChild(label);
+
+          var gift = document.createElement("div");
+          gift.className = "prize-gift-text";
+          gift.textContent = item.gift;
+          sec.appendChild(gift);
+
+          var area = document.createElement("div");
+          area.className = "numbers-area";
+
+          if (item.number && item.number.length > 0) {
+            item.number.forEach(function(n) {
+              var span = document.createElement("div");
+              span.className = "num-big";
+              span.textContent = pad(n);
+              area.appendChild(span);
+            });
+          } else {
+            var msg = document.createElement("div");
+            msg.className = "empty-msg";
+            msg.textContent = "Chưa quay";
+            area.appendChild(msg);
+          }
+          sec.appendChild(area);
+          el.appendChild(sec);
+        });
+
+        // Divider
+        if (hl1.length > 0) {
+          var div1 = document.createElement("div");
+          div1.className = "section-divider";
+          div1.textContent = "Giải chính";
+          el.appendChild(div1);
+        }
+
+        // Render hl-1 (giải nhất)
+        hl1.forEach(function(item) {
+          var sec = document.createElement("div");
+          sec.className = "prize-section hl-1";
+
+          var label = document.createElement("div");
+          label.className = "prize-label";
+          label.textContent = item.title;
+          sec.appendChild(label);
+
+          var gift = document.createElement("div");
+          gift.className = "prize-gift-text";
+          gift.textContent = item.gift;
+          sec.appendChild(gift);
+
+          var area = document.createElement("div");
+          area.className = "numbers-area";
+
+          if (item.number && item.number.length > 0) {
+            item.number.forEach(function(n) {
+              var span = document.createElement("div");
+              span.className = "num-mid";
+              span.textContent = pad(n);
+              area.appendChild(span);
+            });
+          } else {
+            var msg = document.createElement("div");
+            msg.className = "empty-msg";
+            msg.textContent = "Chưa quay";
+            area.appendChild(msg);
+          }
+          sec.appendChild(area);
+          el.appendChild(sec);
+        });
+
+        // Divider
+        if (hl0.length > 0) {
+          var div2 = document.createElement("div");
+          div2.className = "section-divider";
+          div2.textContent = "Các giải khác";
+          el.appendChild(div2);
+        }
+
+        // Render hl-0 (normal prizes)
+        hl0.forEach(function(item) {
+          var hasNum = item.number && item.number.length > 0;
+
+          var sec = document.createElement("div");
+          sec.className = "prize-section hl-0" + (hasNum ? "" : " empty");
+
+          var header = document.createElement("div");
+          header.className = "prize-header";
+
+          var leftWrap = document.createElement("div");
+          var label = document.createElement("span");
+          label.className = "prize-label";
+          label.textContent = item.title;
+          leftWrap.appendChild(label);
+
+          var giftSpan = document.createElement("span");
+          giftSpan.className = "prize-gift-text";
+          giftSpan.textContent = "  —  " + item.gift;
+          leftWrap.appendChild(giftSpan);
+          header.appendChild(leftWrap);
+
+          var count = document.createElement("span");
+          count.className = "prize-count";
+          var drawn = item.number ? item.number.length : 0;
+          count.textContent = drawn + " / " + (item.max || 0);
+          header.appendChild(count);
+          sec.appendChild(header);
+
+          var area = document.createElement("div");
+          area.className = "numbers-area";
+
+          if (hasNum) {
+            item.number.forEach(function(n) {
+              var span = document.createElement("div");
+              span.className = "num-sm";
+              span.textContent = pad(n);
+              area.appendChild(span);
+            });
+          } else {
+            var msg = document.createElement("div");
+            msg.className = "empty-msg";
+            msg.textContent = "Chưa quay";
+            area.appendChild(msg);
+          }
+          sec.appendChild(area);
+          el.appendChild(sec);
+        });
+      }
+
+      // === EXPORT CSV ===
+      function exportCSV() {
+        if (!data || data.length === 0) { alert("Chưa có dữ liệu!"); return; }
+        var orgName = localStorage.getItem("configOrgName") || "TÊN TỔ CHỨC";
+        var programTitle = localStorage.getItem("configProgramTitle") || "CHƯƠNG TRÌNH QUAY SỐ";
+        var csv = "Kết quả " + programTitle + " - " + orgName + "\n";
+        csv += data.map(function(d) { return d.title; }).join(",") + "\n";
+        var mx = Math.max.apply(null, data.map(function(d) { return d.number ? d.number.length : 0; }));
+        for (var i = 0; i < mx; i++) {
+          csv += data.map(function(d) {
+            return d.number && d.number[i] !== undefined ? pad(d.number[i]) : "";
+          }).join(",") + "\n";
+        }
+        var blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
+        var a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = "KetQuaQuaySo.csv";
+        a.click();
+      }
+
+      // === FIREWORKS (lightweight) ===
+      var fwC = document.getElementById("fireworks-canvas");
+      var fwX = fwC.getContext("2d");
+      var fwP = [], fwS = [];
+      var FWG = 0.06;
+      var FWC = ["#ff0043","#14fc56","#1e7fff","#e60aff","#ffbf36","#ffffff","#ffd700","#ff5252"];
+
+      function fwR(a,b) { return Math.random()*(b-a)+a; }
+
+      function fwResize() { fwC.width = window.innerWidth; fwC.height = window.innerHeight; }
+      fwResize();
+      window.addEventListener("resize", fwResize);
+
+      function fwLaunch() {
+        var c = FWC[Math.floor(Math.random()*FWC.length)];
+        fwS.push({
+          x: fwR(fwC.width*0.15, fwC.width*0.85), y: fwC.height,
+          ty: fwR(fwC.height*0.1, fwC.height*0.4),
+          sp: fwR(4,7), c: c,
+          c2: Math.random()<0.4 ? FWC[Math.floor(Math.random()*FWC.length)] : null,
+          tr: [], sz: fwR(2,4)
+        });
+      }
+
+      function fwBurst(s) {
+        var n = Math.floor(fwR(60,120)), sp = fwR(2,5), ring = Math.random()<0.2;
+        for (var i=0; i<n; i++) {
+          var a = ring ? (i/n)*Math.PI*2 : Math.random()*Math.PI*2;
+          var v = ring ? sp*fwR(0.9,1.1) : Math.random()*sp;
+          fwP.push({
+            x:s.x, y:s.y, vx:Math.cos(a)*v, vy:Math.sin(a)*v,
+            life:fwR(40,80), c: s.c2&&Math.random()<0.35?s.c2:s.c,
+            sz:s.sz*fwR(0.5,1.2), al:1, dc:fwR(0.012,0.025), gl:Math.random()<0.3,
+            tl:[]
+          });
+        }
+      }
+
+      var fwT=0, fwI=80;
+      function fwLoop() {
+        requestAnimationFrame(fwLoop);
+        var w=fwC.width, h=fwC.height;
+        fwX.clearRect(0,0,w,h);
+        fwX.globalCompositeOperation="lighter";
+
+        if(++fwT>=fwI) { fwT=0; fwI=Math.floor(fwR(50,120)); fwLaunch(); if(Math.random()<0.25) fwLaunch(); }
+
+        for(var i=fwS.length-1;i>=0;i--) {
+          var s=fwS[i]; s.tr.push({x:s.x,y:s.y}); if(s.tr.length>8) s.tr.shift();
+          s.y-=s.sp; s.x+=fwR(-0.3,0.3);
+          for(var t=0;t<s.tr.length;t++) {
+            fwX.beginPath(); fwX.arc(s.tr[t].x,s.tr[t].y,1.5,0,Math.PI*2);
+            fwX.fillStyle="rgba(255,200,100,"+(t/s.tr.length*0.6)+")"; fwX.fill();
+          }
+          fwX.beginPath(); fwX.arc(s.x,s.y,2.5,0,Math.PI*2); fwX.fillStyle="#fff"; fwX.fill();
+          if(s.y<=s.ty) { fwBurst(s); fwS.splice(i,1); }
+        }
+
+        for(var i=fwP.length-1;i>=0;i--) {
+          var p=fwP[i];
+          p.tl.push({x:p.x,y:p.y}); if(p.tl.length>6) p.tl.shift();
+          p.x+=p.vx; p.y+=p.vy; p.vy+=FWG; p.vx*=0.98; p.vy*=0.98; p.al-=p.dc; p.life--;
+          if(p.al<=0||p.life<=0) { fwP.splice(i,1); continue; }
+          // Draw trail
+          for(var j=0;j<p.tl.length;j++) {
+            var ta=(j/p.tl.length)*p.al*0.4, ts=p.sz*(j/p.tl.length)*0.8;
+            fwX.globalAlpha=Math.max(0,ta);
+            fwX.beginPath(); fwX.arc(p.tl[j].x,p.tl[j].y,ts,0,Math.PI*2); fwX.fillStyle=p.c; fwX.fill();
+          }
+          fwX.globalAlpha=Math.max(0,p.al);
+          fwX.beginPath(); fwX.arc(p.x,p.y,p.sz,0,Math.PI*2); fwX.fillStyle=p.c; fwX.fill();
+          if(p.gl&&Math.random()<0.3) {
+            fwX.beginPath(); fwX.arc(p.x,p.y,p.sz*2,0,Math.PI*2);
+            fwX.fillStyle="#fff"; fwX.globalAlpha=Math.max(0,p.al*0.5); fwX.fill();
+          }
+        }
+        fwX.globalAlpha=1;
+      }
+
+      // === LOAD BACKGROUND ===
+      var savedBg = localStorage.getItem("configBackground");
+      if (savedBg) {
+        document.querySelector(".background").src = savedBg;
+      }
+
+      // === INIT ===
+      loadData();
+      render();
+      fwLoop();
+    </script>
+  </body>
+</html>
