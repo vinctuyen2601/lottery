@@ -48,7 +48,7 @@ Chương trình quay số may mắn với giao diện đẹp, hiệu ứng pháo
 ### Bước 2: Chạy chương trình
 
 - Mở thư mục đã giải nén
-- Nhấn đúp chuột vào file **`TEST CODE QUAY.html`**
+- Nhấn đúp chuột vào file **`index.html`**
 - Chương trình sẽ tự động mở trong trình duyệt web của bạn
 
 > **Lưu ý:** Không cần kết nối internet để sử dụng chương trình (trừ lần đầu cần tải font chữ). Sau lần đầu, trình duyệt sẽ lưu font chữ vào bộ nhớ đệm (cache).
@@ -202,7 +202,7 @@ Chương trình sử dụng 2 file âm thanh:
 
 ```
 lottery/
-  |-- TEST CODE QUAY.html    (Trang chính - quay số)
+  |-- index.html    (Trang chính - quay số)
   |-- KET QUA.html            (Trang kết quả)
   |-- music.mp3               (Nhạc nền)
   |-- spinwheel.mp3           (Âm thanh quay số)
